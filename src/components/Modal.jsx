@@ -10,7 +10,7 @@ const Modal = ({ setShowModal, setEvents, SelectInfos, events }) => {
   const [occupiedSlots, setOccupiedSlots] = useState([]);
   // console.log(events);
 
-  console.log(occupiedSlots);
+  // console.log(occupiedSlots);
   useEffect(() => {
     // console.log(SelectInfos.startStr);
     const eventDate = new Date(SelectInfos.startStr);
@@ -42,36 +42,53 @@ const Modal = ({ setShowModal, setEvents, SelectInfos, events }) => {
     });
 
     setOccupiedSlots(occupiedSlots);
-  }, [events, SelectInfos.startStr]);
+  }, [events, SelectInfos.startStr, SelectInfos.endStr]);
 
   // console.log(occupiedSlots);
-// console.log(SelectInfos.endStr);
+  // console.log(SelectInfos.endStr);
+  
+  const decDate = (enddate) => {
+    // Assuming SelectInfos.endStr is a valid date string like "2024-03-09"
+const endStr = enddate; // Store the original date string
+
+// Create a new Date object using the original date string
+const endDate = new Date(endStr);
+
+// Decrease the date by one day
+endDate.setDate(endDate.getDate() - 1);
+
+// Convert the updated date back to a string
+const updatedEndStr = endDate.toISOString().split('T')[0]; // Format as "YYYY-MM-DD"
+
+return updatedEndStr; // Output the updated date string
+}
   const handleClick = () => {
+
     const calendarApi = SelectInfos.view.calendar;
     const newEvent = {
       title: title,
       start: `${SelectInfos.startStr}${moment(startTime).format("THH:00:00")}`,
-      end: `${SelectInfos.endStr}${moment(endTime).format("THH:00:00")}`,
+      end: `${decDate(SelectInfos.endStr)}${moment(endTime).format("THH:00:00")}`,
     };
 
     calendarApi.addEvent(newEvent);
     setEvents((prevEvents) => [...prevEvents, newEvent]);
 
-    setTitle("");
-    setStartTime(new Date());
-    setEndTime(new Date());
+    // setTitle("");
+    // setStartTime(new Date());
+    // setEndTime(new Date());
     setShowModal(false);
   };
 
+  console.log(occupiedSlots);
   const filterTime = (time) => {
-    console.log(time);
-   console.log(time);
     const timeValue = time.getTime();
-    // console.log(timeValue); 
-      const p = !occupiedSlots.some((slot) => slot.getTime() === timeValue);
-    console.log("ds" ,p);
-    return p
-  }
+    // console.log(time);
+    // console.log(occupiedSlots[0].getTime());
+    // console.log(timeValue);
+    return !occupiedSlots.some(slot => slot.getTime() === timeValue);
+  };
+  
   return (
     <div className="modalStyle">
       <h6>From: {SelectInfos.startStr}</h6>
@@ -93,9 +110,9 @@ const Modal = ({ setShowModal, setEvents, SelectInfos, events }) => {
         timeIntervals={60}
         timeCaption="Time"
         dateFormat="hh:mm aa"
-        minTime={startTime}
-        maxTime={endTime}
-        filterTime={(time)=>filterTime(time)}
+        // minTime={startTime}
+        // maxTime={endTime}
+        filterTime={filterTime}
         className="datePickerStyle"
       />
       <label htmlFor="EndTime">EndTime :</label>
@@ -110,7 +127,7 @@ const Modal = ({ setShowModal, setEvents, SelectInfos, events }) => {
         dateFormat="hh:mm aa"
         // minTime={startTime}
         // maxTime={endTime}
-        filterTime={(time)=>filterTime(time)}
+        filterTime={filterTime}
         className="datePickerStyle"
       />
       <button className="buttonStyle" onClick={handleClick}>
